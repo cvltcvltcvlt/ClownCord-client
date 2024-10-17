@@ -7,6 +7,7 @@
 #include <opus/opus.h>
 #include "connection.hpp"
 #include "renderGui.hpp"
+#include <condition_variable>
 
 extern std::atomic<bool> joinedVC;
 

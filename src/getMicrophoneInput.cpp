@@ -14,6 +14,10 @@ std::thread audioThread;
 std::thread connectionThread;
 std::atomic<bool> stopRecording(false);
 std::atomic<bool> stopAudio(false);
+bool recordingStopped = false;
+
+std::condition_variable cv;
+std::mutex cv_m;
 
 bool connectionSuccessfull = true;
 
@@ -56,19 +60,25 @@ void startRecording() {
 }
 
 void stopVoiceChat() {
-    stopRecording = true; // Остановите запись и другие потоки, если это необходимо
-    stopAudio = true;
+    {
+        std::lock_guard<std::mutex> lk(cv_m);
+        recordingStopped = true;
+    }
+    cv.notify_one();  // Уведомить основной поток, что запись завершена
+
+    stopRecording = true;  // Остановить запись
+    stopAudio = true;      // Остановить аудио
 
     if (recordingThread.joinable()) {
-        recordingThread.join();  // Завершаем поток записи
+        recordingThread.join();  // Ожидать завершения потока записи
     }
     if (audioThread.joinable()) {
-        audioThread.join();  // Завершаем поток декодирования
+        audioThread.join();  // Ожидать завершения потока декодирования
     }
 
-    closeConnection();  // Закрываем соединение
+    closeConnection();  // Закрыть соединение
     joinedVC = false;
-    std::cout << "Voice chat stopped." << std::endl;
+    std::cout << "Voice chat stopped. You can continue using the program." << std::endl;
 }
 
 // Record callback to process audio input and encode it using Opus
@@ -194,7 +204,6 @@ int setupAndStartRecording(const char* outputFileName)
             Pa_StopStream(stream);
             Pa_CloseStream(stream);
             Pa_Terminate();
-            opus_encoder_destroy(data.opusEncoder);
             std::cout << "Disconnected from Voice Chat!";
             break;
         }

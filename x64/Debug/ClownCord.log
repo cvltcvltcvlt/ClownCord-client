@@ -1,5 +1,5 @@
 ﻿  getMicrophoneInput.cpp
-D:\ClownCord\ClownCord\src\getMicrophoneInput.cpp(317,91): warning C4267: аргумент: преобразование из "size_t" в "opus_int32"; возможна потеря данных
+D:\ClownCord\ClownCord\src\getMicrophoneInput.cpp(326,91): warning C4267: аргумент: преобразование из "size_t" в "opus_int32"; возможна потеря данных
   ClownCord.vcxproj -> D:\ClownCord\x64\Debug\ClownCord.exe
   "pwsh.exe" не является внутренней или внешней
   командой, исполняемой программой или пакетным файлом.

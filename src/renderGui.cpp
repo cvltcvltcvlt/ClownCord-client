@@ -8,6 +8,29 @@ std::atomic<bool> joinedVC = false;
 std::thread connectThread;
 std::thread leaveThread;
 
+void handleJoinVC() {
+    if (!joinedVC) {
+        joinedVC = true;  // Устанавливаем флаг
+        if (connectThread.joinable()) {
+            connectThread.join();  // Ожидание завершения предыдущего потока
+        }
+        connectThread = std::thread(startVoiceChat);  // Запускаем новый поток для голосового чата
+    }
+}
+
+// Функция для выхода из голосового чата
+void handleLeaveVC() {
+    if (joinedVC) {
+        joinedVC = false;  // Сбрасываем флаг
+        stopVoiceChat();   // Останавливаем голосовой чат
+
+        // Безопасное завершение потоков
+        if (connectThread.joinable()) {
+            connectThread.join();  // Дожидаемся завершения потока
+        }
+    }
+}
+
 void Gui::SetupImGui(GLFWwindow* window) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -29,26 +52,12 @@ void Gui::RenderUI() {
 
     // Handle Join VC button
     if (ImGui::Button("Join VC")) {
-        if (!joinedVC) {
-            joinedVC = true;
-            if (connectThread.joinable()) {
-                connectThread.join();  // Join any previous connection thread
-            }
-            connectThread = std::thread(startVoiceChat);  // Start the voice chat thread
-        }
+        handleJoinVC();
     }
 
     // Handle Leave VC button
     if (ImGui::Button("Leave VC")) {
-        if (joinedVC) {
-            joinedVC = false;
-            stopVoiceChat();  // Signal to stop voice chat
-
-            // Ensure connectThread is joined properly
-            if (connectThread.joinable()) {
-                connectThread.join();  // Wait for the thread to finish
-            }
-        }
+        handleLeaveVC();
     }
 
     static float micVolume = 0.5f;
