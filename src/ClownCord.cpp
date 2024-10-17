@@ -43,6 +43,7 @@ int main() {
         // Render the GUI
         gui.RenderUI();
 
+
         // Swap buffers to display the rendered GUI
         glfwSwapBuffers(window);
     }
