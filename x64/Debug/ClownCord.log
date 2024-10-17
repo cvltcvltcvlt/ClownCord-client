@@ -1,16 +1,5 @@
-﻿  ClownCord.cpp
-  Connection.cpp
-  decodeSound.cpp
-  encodeSound.cpp
-  getMicrophoneInput.cpp
-  renderGui.cpp
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\minwindef.h(130,9): warning C4005: APIENTRY: изменение макроопределения
-  (компиляция исходного файла "src/renderGui.cpp")
-      D:\dev\vcpkg\installed\x64-windows\include\glad\glad.h(32,9):
-      см. предыдущее определение "APIENTRY"
-  
-  user.cpp
-  Создание кода...
+﻿  getMicrophoneInput.cpp
+D:\ClownCord\ClownCord\src\getMicrophoneInput.cpp(317,91): warning C4267: аргумент: преобразование из "size_t" в "opus_int32"; возможна потеря данных
   ClownCord.vcxproj -> D:\ClownCord\x64\Debug\ClownCord.exe
   "pwsh.exe" не является внутренней или внешней
   командой, исполняемой программой или пакетным файлом.

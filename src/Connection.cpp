@@ -2,12 +2,11 @@
 #include <iostream>
 #include <winsock2.h>
 #include <ws2tcpip.h> 
+#include "renderGui.hpp"
 
 #pragma comment(lib, "Ws2_32.lib")
 
 Connection* CurrentConnection;
-
-bool connectionSuccessfull = false;  // Initialize the connection status
 
 
 

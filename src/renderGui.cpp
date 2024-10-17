@@ -2,11 +2,11 @@
 #include "getMicrophoneInput.hpp"
 #include <iostream>
 #include <thread>
-#include "connection.hpp"
+#include <atomic>
 
-bool joinedVC = false;
-std::thread recordingThread;
-std::thread connectionThread;
+std::atomic<bool> joinedVC = false;
+std::thread connectThread;
+std::thread leaveThread;
 
 void Gui::SetupImGui(GLFWwindow* window) {
     IMGUI_CHECKVERSION();
@@ -14,10 +14,6 @@ void Gui::SetupImGui(GLFWwindow* window) {
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 130");
-}
-
-void startRecording() {
-    setupAndStartRecording("output.wav");
 }
 
 void Gui::RenderUI() {
@@ -31,45 +27,26 @@ void Gui::RenderUI() {
 
     ImGui::Text("Channels:");
 
+    // Handle Join VC button
     if (ImGui::Button("Join VC")) {
         if (!joinedVC) {
             joinedVC = true;
-            // Ensure the previous connection is cleaned up before starting a new one
-            if (connectionSuccessfull) {
-                closeConnection();  // Close any previous connection if still active
+            if (connectThread.joinable()) {
+                connectThread.join();  // Join any previous connection thread
             }
-
-            connectionThread = std::thread(startConnection);
-            connectionThread.detach();  // Detach to allow the thread to run independently
-
-            if (connectionSuccessfull) {
-                // Wait for the connection to complete before starting the recording
-                recordingThread = std::thread(startRecording);
-                recordingThread.detach();  // Detach recording thread to run independently
-                std::cout << "Joined VC and started recording!" << std::endl;
-            }
-            else {
-                std::cout << "Connection error!" << std::endl;
-            }
+            connectThread = std::thread(startVoiceChat);  // Start the voice chat thread
         }
     }
 
+    // Handle Leave VC button
     if (ImGui::Button("Leave VC")) {
         if (joinedVC) {
             joinedVC = false;
-            std::cout << "Left VC and stopped recording!" << std::endl;
+            stopVoiceChat();  // Signal to stop voice chat
 
-            // Ensure that we close the connection and stop recording properly
-            if (recordingThread.joinable()) {
-                // Handle recording thread cleanup if necessary
-                recordingThread.join();  // Wait for the recording thread to finish
-            }
-
-            if (connectionSuccessfull) {
-                closeConnection();
-            }
-            else {
-                std::cout << "Not connected to any voice chat!" << std::endl;
+            // Ensure connectThread is joined properly
+            if (connectThread.joinable()) {
+                connectThread.join();  // Wait for the thread to finish
             }
         }
     }
@@ -90,5 +67,3 @@ void Gui::RenderUI() {
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
-
-

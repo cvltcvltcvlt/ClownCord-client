@@ -1,6 +1,9 @@
+#pragma once
+
 #include <winsock2.h>
 #include <WS2tcpip.h>
 #include <atomic>
+#include "renderGui.hpp"
 
 extern bool connectionSuccessfull;
 
@@ -26,8 +29,7 @@ public:
     }
 };
 
-int ResolveHostName(const char* pszHostName,
-    sockaddr_in* pAddr);
+int ResolveHostName(const char* pszHostName, sockaddr_in* pAddr);
 
 void startConnection();
 
